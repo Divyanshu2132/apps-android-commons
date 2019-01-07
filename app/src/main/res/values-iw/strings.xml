@@ -8,6 +8,7 @@
 * Guycn2
 * Inkbug
 * Nurick
+* Strayblues
 * Uziel302
 * YaronSh
 -->
@@ -249,7 +250,7 @@
   <string name="upload_problem_image_blurry">התמונה מטושטשת.</string>
   <string name="upload_problem_image_duplicate">התמונה כבר בוויקישיתוף.</string>
   <string name="upload_problem_different_geolocation">התמונה צולמה במקום אחר.</string>
-  <string name="upload_problem_do_you_continue">האם ברצונך עדיין להעלות את התמונה הזאת?</string>
+  <string name="upload_problem_do_you_continue">האם ברצונך להעלות את התמונה הזאת עדיין?</string>
   <string name="give_permission">לתת הרשאה</string>
   <string name="use_external_storage">להשתמש באחסון חיצוני</string>
   <string name="use_external_storage_summary">שמירת תמונות שצולמו באמצעות מצלמה בתוך היישום במכשיר שלך</string>
@@ -265,7 +266,7 @@
   <string name="skip_login">לדלג</string>
   <string name="navigation_item_login">כניסה לחשבון</string>
   <string name="skip_login_title">האם באמת לדלג על הכניסה לחשבון?</string>
-  <string name="skip_login_message">לא תהיה לך אפשרות להעלות תמונות.</string>
+  <string name="skip_login_message" fuzzy="true">לא תהיה לך אפשרות להעלות תמונות.</string>
   <string name="login_alert_message">נא להיכנס לחשבון כדי להשתמש באפשרות הזאת</string>
   <string name="copy_wikicode">העתקת קוד ויקי ללוח</string>
   <string name="wikicode_copied">קוד הוויקי הועתק ללוח</string>

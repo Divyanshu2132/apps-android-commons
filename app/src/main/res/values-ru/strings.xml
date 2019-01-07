@@ -18,6 +18,7 @@
 * Rubin16
 * Vlad5250
 * Wirbel78
+* Евгения
 * ОйЛ
 -->
 <resources>
@@ -265,7 +266,7 @@
   <string name="skip_login">Пропустить</string>
   <string name="navigation_item_login">Войти</string>
   <string name="skip_login_title">Вы действительно хотите пропустить авторизацию?</string>
-  <string name="skip_login_message">Вы не сможете загрузить изображения.</string>
+  <string name="skip_login_message" fuzzy="true">Вы не сможете загрузить изображения.</string>
   <string name="login_alert_message">Войдите, чтобы использовать эту функцию</string>
   <string name="copy_wikicode">Копирование викикода в буфер обмена</string>
   <string name="wikicode_copied">Викикод скопирован в буфер обмена</string>
@@ -413,4 +414,5 @@
   <string name="yes_submit">Да, отправить</string>
   <string name="no_go_back">Нет, вернуться</string>
   <string name="upload_flow_all_images_in_set">(Для всех изображений в наборе)</string>
+  <string name="error_processing_image">Произошла ошибка при загрузке файла. Пожалуйста, попробуйте позднее!</string>
 </resources>

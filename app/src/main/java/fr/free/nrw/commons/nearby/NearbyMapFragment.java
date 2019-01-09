@@ -27,6 +27,8 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.esafirm.imagepicker.features.ImagePicker;
+import com.esafirm.imagepicker.model.Image;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -58,13 +60,18 @@ import fr.free.nrw.commons.Utils;
 import fr.free.nrw.commons.auth.LoginActivity;
 import fr.free.nrw.commons.bookmarks.locations.BookmarkLocationsDao;
 import fr.free.nrw.commons.contributions.ContributionController;
+import fr.free.nrw.commons.utils.ImageUtils;
+import fr.free.nrw.commons.utils.IntentUtils;
 import fr.free.nrw.commons.utils.LocationUtils;
 import fr.free.nrw.commons.utils.PlaceUtils;
 import fr.free.nrw.commons.utils.UriDeserializer;
 import fr.free.nrw.commons.utils.ViewUtil;
 import timber.log.Timber;
 
-import static android.app.Activity.RESULT_OK;
+import static fr.free.nrw.commons.contributions.ContributionController.NEARBY_CAMERA_UPLOAD_REQUEST_CODE;
+import static fr.free.nrw.commons.contributions.ContributionController.NEARBY_GALLERY_UPLOAD_REQUEST_CODE;
+import static fr.free.nrw.commons.contributions.ContributionController.NEARBY_UPLOAD_IMAGE_LIMIT;
+import static fr.free.nrw.commons.wikidata.WikidataConstants.IS_DIRECT_UPLOAD;
 import static fr.free.nrw.commons.wikidata.WikidataConstants.WIKIDATA_ENTITY_ID_PREF;
 import static fr.free.nrw.commons.wikidata.WikidataConstants.WIKIDATA_ITEM_LOCATION;
 
@@ -108,7 +115,6 @@ public class NearbyMapFragment extends DaggerFragment {
     private Animation fab_close;
     private Animation fab_open;
     private Animation rotate_forward;
-    public ContributionController controller;
 
     private Place place;
     private Marker selected;
@@ -129,17 +135,11 @@ public class NearbyMapFragment extends DaggerFragment {
     private Bundle bundleForUpdates;// Carry information from activity about changed nearby places and current location
     private boolean searchedAroundCurrentLocation = true;
 
-    @Inject
-    @Named("prefs")
-    SharedPreferences prefs;
-    @Inject
-    @Named("default_preferences")
-    SharedPreferences defaultPrefs;
-    @Inject
-    @Named("direct_nearby_upload_prefs")
-    SharedPreferences directPrefs;
-    @Inject
-    BookmarkLocationsDao bookmarkLocationDao;
+    @Inject ContributionController controller;
+    @Inject @Named("prefs") SharedPreferences prefs;
+    @Inject @Named("default_preferences") SharedPreferences defaultPrefs;
+    @Inject @Named("direct_nearby_upload_prefs") SharedPreferences directPrefs;
+    @Inject BookmarkLocationsDao bookmarkLocationDao;
 
     private static final double ZOOM_LEVEL = 14f;
 
@@ -151,7 +151,6 @@ public class NearbyMapFragment extends DaggerFragment {
         super.onCreate(savedInstanceState);
         Timber.d("Nearby map fragment created");
 
-        controller = new ContributionController(this, defaultPrefs);
         Bundle bundle = this.getArguments();
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(Uri.class, new UriDeserializer())
@@ -880,7 +879,7 @@ public class NearbyMapFragment extends DaggerFragment {
             if (fabCamera.isShown()) {
                 Timber.d("Camera button tapped. Place: %s", place.toString());
                 storeSharedPrefs();
-                controller.initiateCameraPick(getActivity());
+                controller.initiateCameraPick(this, NEARBY_CAMERA_UPLOAD_REQUEST_CODE);
             }
         });
 
@@ -888,7 +887,7 @@ public class NearbyMapFragment extends DaggerFragment {
             if (fabGallery.isShown()) {
                 Timber.d("Gallery button tapped. Place: %s", place.toString());
                 storeSharedPrefs();
-                controller.initiateGalleryPick(getActivity());
+                controller.initiateGalleryPick(this, NEARBY_UPLOAD_IMAGE_LIMIT, NEARBY_GALLERY_UPLOAD_REQUEST_CODE);
             }
         });
     }
@@ -900,29 +899,18 @@ public class NearbyMapFragment extends DaggerFragment {
         editor.putString("Category", place.getCategory());
         editor.putString(WIKIDATA_ENTITY_ID_PREF, place.getWikiDataEntityId());
         editor.putString(WIKIDATA_ITEM_LOCATION, PlaceUtils.latLangToString(place.location));
+        editor.putBoolean(IS_DIRECT_UPLOAD, true);
         editor.apply();
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-
-        if (resultCode == RESULT_OK) {
-            Timber.d("OnActivityResult() parameters: Req code: %d Result code: %d Data: %s",
-                    requestCode, resultCode, data);
-            String wikidataEntityId = directPrefs.getString(WIKIDATA_ENTITY_ID_PREF, null);
-            String wikidataItemLocation = directPrefs.getString(WIKIDATA_ITEM_LOCATION, null);
-            if (requestCode == ContributionController.SELECT_FROM_CAMERA) {
-                // If coming from camera, pass null as uri. Because camera photos get saved to a
-                // fixed directory
-                controller.handleImagePicked(requestCode, null, true, wikidataEntityId, wikidataItemLocation);
-            } else {
-                controller.handleImagePicked(requestCode, data.getData(), true, wikidataEntityId, wikidataItemLocation);
-            }
+        if (IntentUtils.shouldNearbyHandle(requestCode, resultCode, data)) {
+            List<Image> images = ImagePicker.getImages(data);
+            Intent shareIntent = controller.handleImagesPicked(ImageUtils.getUriListFromImages(images), requestCode);
+            startActivity(shareIntent);
         } else {
-            Timber.e("OnActivityResult() parameters: Req code: %d Result code: %d Data: %s",
-                    requestCode, resultCode, data);
+            super.onActivityResult(requestCode, resultCode, data);
         }
     }
 

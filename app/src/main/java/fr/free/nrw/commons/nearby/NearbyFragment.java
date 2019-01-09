@@ -126,6 +126,14 @@ public class NearbyFragment extends CommonsDaggerSupportFragment
         if (savedInstanceState != null) {
             onOrientationChanged = true;
         }
+        this.getView().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+                    bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                }
+            }
+        });
     }
 
     /**
@@ -312,7 +320,7 @@ public class NearbyFragment extends CommonsDaggerSupportFragment
                             });
 
         } else if (locationChangeType
-                .equals(LOCATION_SLIGHTLY_CHANGED)) {
+                .equals(LOCATION_SLIGHTLY_CHANGED) && nearbyMapFragment != null) {
             Gson gson = new GsonBuilder()
                     .registerTypeAdapter(Uri.class, new UriSerializer())
                     .create();

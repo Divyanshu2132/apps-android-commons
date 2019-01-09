@@ -5,7 +5,6 @@ import android.animation.TypeEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -44,7 +43,6 @@ import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.MapboxMapOptions;
-import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -67,7 +65,6 @@ import fr.free.nrw.commons.utils.ViewUtil;
 import timber.log.Timber;
 
 import static android.app.Activity.RESULT_OK;
-import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static fr.free.nrw.commons.wikidata.WikidataConstants.WIKIDATA_ENTITY_ID_PREF;
 import static fr.free.nrw.commons.wikidata.WikidataConstants.WIKIDATA_ITEM_LOCATION;
 
@@ -543,6 +540,15 @@ public class NearbyMapFragment extends DaggerFragment {
      * this area button to search nearby places for other locations
      */
     private void addMapMovementListeners() {
+
+        mapboxMap.addOnMapClickListener(new MapboxMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(@NonNull LatLng point) {
+                if (bottomSheetListBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+                    bottomSheetListBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                }
+            }
+        });
 
         mapboxMap.addOnCameraMoveListener(() -> {
 
